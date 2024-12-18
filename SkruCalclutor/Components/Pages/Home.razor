@@ -1,0 +1,45 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+
+
+<div class="NG">
+    <h1>
+        New
+        <br />
+        Game
+    </h1>
+</div>
+
+<div class="my-5">
+
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <label for="playerSlider"
+               style="font-size:12px"
+               class="me-2  ">Number of Players</label>
+        <span style="font-size:12px">@CurrentValue - 10</span>
+    </div>
+
+    <input type="range" id="playerSlider" class="form-range custom-slider"
+           min="2" max="10" step="1"
+           @bind="CurrentValue" />
+</div>
+
+<center>
+
+    <button class="btn btn-dark rounded-pi" @onclick="StartGame">
+        Start
+    </button>
+</center>
+
+@code {
+    private int CurrentValue = 2; // Initial value
+    private void StartGame()
+    {
+        if (CurrentValue > 1)
+        {
+        // Navigate to the game page and pass the number of players as a query parameter
+        NavigationManager.NavigateTo($"/game/{CurrentValue}");
+            
+        }
+    }
+}

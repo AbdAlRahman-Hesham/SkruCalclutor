@@ -1,0 +1,103 @@
+﻿@page "/game/{numOfPlayer:int}"
+@inject NavigationManager NavigationManager
+
+<h3 class="mb-3">Round Number: @RoundNumber</h3>
+
+<div class="player-list">
+    @foreach (var player in Players)
+    {
+        <PlayerCard Player="player" OnScoreAdded="UpdatePlayerScore" />
+    }
+</div>
+
+<center>
+    @if (IsGameEnd)
+    {
+        <h2>Winner Is</h2>
+        @foreach (var p in Winner)
+        {
+            <h2>@p</h2>
+        }
+        <p>Game Over! Click "New Game" to restart.</p>
+        <button class="btn btn-dark mt-3" @onclick="newGame">New Game</button>
+    }
+    else
+    {
+        <button class="btn btn-dark mt-3" @onclick="nextRound">Next Round</button>
+    }
+</center>
+
+@code {
+    [Parameter] public int numOfPlayer { get; set; }
+    private List<Player> Players = new List<Player>();
+    private int RoundNumber { get; set; } = 1;
+    private bool IsGameEnd { get; set; } = false;
+    List<string> Winner { get; set; } = new List<string>();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        // Initialize players list based on the number of players passed from the URL
+        for (int i = 1; i <= numOfPlayer; i++)
+        {
+            Players.Add(new Player { Name = $"Player {i}", Score = 0, IsFavorite = true });
+        }
+    }
+
+    private void UpdatePlayerScore((string playerName, int updatedScore) scoreUpdate)
+    {
+        if (!IsGameEnd){
+
+       
+            var player = Players.FirstOrDefault(p => p.Name == scoreUpdate.playerName);
+            if (player != null)
+            {
+                player.Score = scoreUpdate.updatedScore;
+
+                // Find the minimum score among all players
+                var minScore = Players.Min(p => p.Score);
+
+                // Mark all players with the minimum score as favorites
+                foreach (var p in Players)
+                {
+                    p.IsFavorite = p.Score == minScore;
+                }
+                }
+        }
+    }
+
+    private void nextRound()
+    {
+        if (RoundNumber>=5)
+        {
+            IsGameEnd = true; // End the game if the max rounds are reached
+
+            foreach (var p in Players)
+            {
+                if (p.IsFavorite)
+                {
+                    Winner.Add(p.Name);
+                }
+            }
+        } 
+        else{
+
+            RoundNumber += 1; 
+        }
+
+    }
+
+    private void newGame()
+    {
+        // Reset all players' scores and state
+        foreach (var player in Players)
+        {
+            player.Score = 0;
+            player.IsFavorite = true;
+        }
+
+        IsGameEnd = false; // Reset game state
+        RoundNumber = 1; // Reset round counter
+    }
+}

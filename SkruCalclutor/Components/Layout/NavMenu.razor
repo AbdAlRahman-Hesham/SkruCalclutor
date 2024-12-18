@@ -1,0 +1,28 @@
+﻿<div class="top-row ps-3 navbar navbar-dark d-flex justify-content-center align-items-center">
+    <img style="width: 45px; height: 37.5px;" src="favicon.png" alt="Icon" />
+</div>
+
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href=""
+            Match="NavLinkMatch.All">
+                <i class="fa-solid fa-house  mx-1 "></i> Home
+            </NavLink>
+        </div>
+       
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="PreviusaScore">
+                <i class="fa-solid fa-square-poll-vertical m-1 "></i> Previusa Score
+            </NavLink>
+        </div> 
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="About">
+                <i class="fa-solid fa-address-card mx-1"></i> About
+            </NavLink>
+        </div>
+    </nav>
+</div>

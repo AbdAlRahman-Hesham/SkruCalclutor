@@ -1,0 +1,114 @@
+﻿<div class="player-card d-flex flex-column justify-content-between align-items-center p-3 mb-2 rounded-3">
+    <div class="d-flex align-items-center">
+        @if (Player?.IsFavorite ?? false)
+        {
+            <i class="fa-solid fa-star me-2"></i>
+        }
+
+        @if (IsEditingName)
+        {
+            <div style="display:flex; flex-direction:column">
+                <div class="input-container">
+                    <input type="text" @bind="EditableName" class="form-control player-name-input" />
+
+
+                </div>
+                <center>
+
+                    <button class="btn btn-dark btn-sm ms-2 gold-bg" @onclick="SavePlayerName">Save</button>
+                    <button class="btn btn-secondary btn-sm ms-2" @onclick="CancelEditName">Cancel</button>
+                </center>
+            </div>
+
+
+        }      
+        else
+        {
+            <span class="player-name" @onclick="EditPlayerName">@Player?.Name</span>
+        }
+    </div>
+    <div class="d-flex align-items-center">
+        <div class="total-score">Total Score: @Player?.Score</div>
+        <button class="add-score-btn btn btn-link" @onclick="ShowInput">
+            <i style="
+                width:15px;
+                height:15px;
+                color:#DD497E;
+            "
+            class="fa-solid fa-plus pink"></i>
+        </button>
+    </div>
+
+    @if (ShowInputField)
+    {
+        <div class="input-container">
+            <input type="number" 
+                @bind="ScoreToAdd" 
+                placeholder="Enter score" 
+                class="form-control"
+                style="width:30vw"
+                />
+            <button class="btn btn-dark mt-2 gold-bg" @onclick="AddScore">Add</button>
+            <button class="btn btn-secondary mt-2" @onclick="CancelInput">Cancel</button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Player? Player { get; set; }
+    [Parameter] public EventCallback<(string PlayerName, int Score)> OnScoreAdded { get; set; }
+
+    private bool ShowInputField { get; set; } = false;
+    private int ScoreToAdd { get; set; }
+    private bool IsEditingName { get; set; } = false;
+    private string EditableName { get; set; } = string.Empty;
+
+    private void ShowInput()
+    {
+        ShowInputField = true;
+    }
+
+    private async Task AddScore()
+    {
+        if (ScoreToAdd != 0)
+        {
+            if (Player.Score>=0)
+            {
+
+                Player.Score += ScoreToAdd; // Update score locally
+
+                await OnScoreAdded.InvokeAsync((Player.Name, Player.Score)); // Notify parent component
+
+                ShowInputField = false;
+                ScoreToAdd = 0;            }
+        }
+    }
+
+    private void CancelInput()
+    {
+        ShowInputField = false;
+    }
+
+    private void EditPlayerName()
+    {
+        if (Player != null)
+        {
+            EditableName = Player.Name; // Set the current name in the input field
+            IsEditingName = true;
+        }
+    }
+
+    private void SavePlayerName()
+    {
+        if (Player != null && !string.IsNullOrWhiteSpace(EditableName))
+        {
+            Player.Name = EditableName; // Update the player's name
+            IsEditingName = false; // Exit edit mode
+        }
+    }
+
+    private void CancelEditName()
+    {
+        IsEditingName = false; // Exit edit mode without saving
+    }
+}
