@@ -1,0 +1,160 @@
+﻿@page "/SavePlayersNames"
+@inject ISavePlayerRepo Repo
+@inject NavigationManager NavigationManager
+
+<div class="container-fluid px-4 py-3">
+    <div class="row">
+        <div class="col-12 col-md-6 mb-4">
+            <h3 class="mb-3">Save Player Names</h3>
+            <EditForm Model="@PlayerModel" OnValidSubmit="SavePlayerInDataBase" class="needs-validation">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="alert alert-danger" />
+                <div class="form-group mb-3">
+                    <label for="playerName" class="form-label">Player Name</label>
+                    <InputText id="playerName"
+                               @bind-Value="PlayerModel.Name"
+                               class="form-control"
+                               placeholder="Enter player name" />
+                    <ValidationMessage For="@(() => PlayerModel.Name)" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-dark w-100">
+                    @(IsEditing ? "Update Player" : "Save Player")
+                </button>
+            </EditForm>
+
+            @if (!string.IsNullOrEmpty(StatusMessage))
+            {
+                <div class="alert @(SaveSuccessful ? "alert-success" : "alert-danger") mt-3">
+                    @StatusMessage
+                </div>
+            }
+        </div>
+
+        <div class="col-12 col-md-6">
+            <h4 class="mb-3">Players List</h4>
+            @if (savedPlayers == null || savedPlayers.Count == 0)
+            {
+                <p class="text-muted">No players saved yet.</p>
+            }
+            else
+            {
+                <div class="list-group">
+                    @foreach (var player in savedPlayers)
+                    {
+                        <div class="list-group-item list-group-item-action d-flex flex-column justify-content-between align-items-center">
+                            <span>@player.Name</span>
+                            <div class="btn-group" role="group">
+                                <button @onclick="() => EditPlayer(player)"
+                                        class="btn btn-sm btn-outline-primary">
+                                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                                </button>
+                                <button @onclick="() => DeletePlayer(player.Id)"
+                                        class="btn btn-sm btn-outline-danger">
+                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<SavedPlayer> savedPlayers = new();
+    private PlayerModel PlayerModel { get; set; } = new PlayerModel();
+    private string StatusMessage { get; set; } = string.Empty;
+    private bool SaveSuccessful { get; set; }
+    private bool IsEditing { get; set; }
+    private int EditingPlayerId { get; set; }
+
+  
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPlayers();
+    }
+
+    private async Task LoadPlayers()
+    {
+        savedPlayers = await Repo.GetAllPlayersAsync();
+    }
+
+    private async Task SavePlayerInDataBase()
+    {
+        try
+        {
+            if (IsEditing)
+            {
+                // Update existing player
+                var playerToUpdate = await Repo.GetPlayerByIdAsync(EditingPlayerId);
+                if (playerToUpdate != null)
+                {
+                    playerToUpdate.Name = PlayerModel.Name;
+                    await Repo.UpdatePlayerAsync(playerToUpdate);
+                    StatusMessage = $"Player '{playerToUpdate.Name}' updated successfully!";
+                }
+            }
+            else
+            {
+                // Add new player
+                var player = new SavedPlayer
+                    {
+                        Name = PlayerModel.Name,
+                    };
+                await Repo.AddPlayer(player);
+                StatusMessage = $"Player '{player.Name}' saved successfully!";
+            }
+
+            // Reset form and reload players
+            ResetForm();
+            await LoadPlayers();
+            SaveSuccessful = true;
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error saving player: {ex.Message}";
+            SaveSuccessful = false;
+        }
+    }
+
+    private void EditPlayer(SavedPlayer player)
+    {
+        IsEditing = true;
+        EditingPlayerId = player.Id;
+        PlayerModel.Name = player.Name;
+    }
+
+    private async Task DeletePlayer(int playerId)
+    {
+        try
+        {
+            bool result = await Repo.DeletePlayerAsync(playerId);
+            if (result)
+            {
+                StatusMessage = "Player deleted successfully!";
+                SaveSuccessful = true;
+                await LoadPlayers();
+                ResetForm();
+            }
+            else
+            {
+                StatusMessage = "Failed to delete player.";
+                SaveSuccessful = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error deleting player: {ex.Message}";
+            SaveSuccessful = false;
+        }
+    }
+
+    private void ResetForm()
+    {
+        PlayerModel = new PlayerModel();
+        IsEditing = false;
+        EditingPlayerId = 0;
+    }
+}

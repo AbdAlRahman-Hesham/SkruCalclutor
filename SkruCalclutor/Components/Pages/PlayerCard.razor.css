@@ -7,7 +7,6 @@
     .add-score-btn:hover {
         color: #ffbf00; /* Gold color on hover */
     }
-
 /* Styling for player card */
 .player-card {
     background-color: #2f2f2f; /* Dark background for the card */
@@ -21,12 +20,10 @@
     border-radius: 10px;
     transition: transform 0.3s;
 }
-
     /* Hover effect on the player card */
     .player-card:hover {
         transform: scale(1.05);
     }
-
 /* Player name and icon */
 .player-name {
     font-weight: bold;
@@ -37,14 +34,12 @@
 .player-card .fa-star {
     color: #ffbf00; /* Gold color for the star icon */
 }
-
 /* Total score styling */
 .total-score {
     font-size: 14px;
     margin-right: 15px;
     color: #ccc; /* Lighter color for the score */
 }
-
 /* Input container styling */
 .input-container {
     margin-top: 10px;
@@ -62,7 +57,6 @@
         margin-top: 5px;
         width: 100px;
     }
-
 /* Close button (X) */
 .remove-btn {
     color: white;
@@ -74,18 +68,17 @@
     .remove-btn:hover {
         color: red; /* Red color when hovering */
     }
-
 /* Container for player cards */
 .player-list {
     max-width: 400px;
     margin: 0 auto;
 }
-
 /* Gradient background for the page */
 body {
     background: linear-gradient(45deg, #ff7e5f, #feb47b); /* Gradient background */
     font-family: Arial, sans-serif;
 }
+
 .gold-bg {
-    background-color:#F6993C;
+    background-color: #F6993C;
 }

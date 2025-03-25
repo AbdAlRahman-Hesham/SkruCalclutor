@@ -1,5 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
+using Microsoft.EntityFrameworkCore;
+using Contexts.Data;
+using Contexts.Repos;
 namespace SkruCalclutor
 {
     public static class MauiProgram
@@ -16,14 +19,22 @@ namespace SkruCalclutor
                 });
 
             builder.Services.AddMauiBlazorWebView();
-
+            
+            string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "app.db");
+            builder.Services.AddSingleton<ISavePlayerRepo>(provider =>
+            {
+                return new SavePlayerRepo(dbPath);
+            });
             //builder.Services.AddSingleton<GameStateService>();
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
+            var app = builder.Build();
 
-            return builder.Build();
+            
+
+            return app;
         }
     }
 }
